@@ -71,8 +71,10 @@ Duration<-Import_Arm("Data")
 Duration_name <- plyr::rbind.fill(lapply(strsplit(as.character(Duration$filename), split="/"), 
                                     function(X) data.frame(t(X))))
 
-Duration$created_at[] <- lapply(Duration$created_at, gsub, pattern="-04:00", replacement="")
-Duration$created_at[] <- lapply(Duration$created_at, gsub, pattern="T", replacement=" ")
+Duration$created_at[] <- lapply(Duration$created_at, 
+                                gsub, pattern="-04:00", replacement="")
+Duration$created_at[] <- lapply(Duration$created_at, gsub, pattern="T", 
+                                replacement=" ")
 
 # Date_time <- plyr::rbind.fill(lapply(strsplit(as.character(Duration$created_at), split="T"), 
 #                                     function(X) data.frame(t(X))))
@@ -86,8 +88,6 @@ colnames(Duration) <- c("Arm", "File", "DateTime", "entry_id", "beaker", "durati
 Duration$ID<-paste0(Duration$Arm, Duration$DateTime)
 Duration <- Duration[!duplicated(Duration$ID), ]
 #Duration<-Duration[!(Duration$duration<3),]
-
-
 ```
 
 
@@ -102,87 +102,42 @@ Duration$Date_Time<-as.POSIXct(Duration$DateTime)
 summary(Duration)
 ```
 
-# All data
-
-```{r}
-
-# All_data<- ggplot(Duration) + 
-#   
-#   theme_bw() +
-#   # scale_x_continuous(limits = c(0, 24),
-#   #                     expand = c(0.01, 0.01),
-#   #                     breaks = seq(0, 24, 2),
-#   #                     name="Time of the day")+
-#   geom_point(aes(Date_Time, duration, colour=Arm))+
-#   facet_wrap(~beaker)
-# All_data
-
-```
-
 # Current data
 
 ```{r}
-Current<-Duration[Duration$Date>"2023-05-02", ]
+Experiement<-Duration[Duration$Date>"2023-05-01", ]
+Nutrients<-Experiement[Experiement$Date<"2023-05-18", ]
+Disease1<-Experiement[Experiement$Date>"2023-05-18", ]
+Disease1<-Disease1[Disease1$Date<"2023-05-20", ]
+Disease2<-Experiement[Experiement$Date>"2023-05-19", ]
+
 ```
 
 ```{r}
-Cases.Armand<-Current[Current$Arm=="Armand", ] %>% count(beaker,
+N.Armand<-Nutrients[Nutrients$Arm=="Armand", ] %>% count(beaker, 
                                   sort = F)
 
-Cases.Armanda<-Current[Current$Arm=="Armanda", ] %>% count(beaker,
+N.Armanda<-Nutrients[Nutrients$Arm=="Armanda", ] %>% count(beaker,
                                   sort = F)
 
-Cases<-cbind(Cases.Armand, Cases.Armanda[,-1 ])
-colnames(Cases) <-c("Beaker", "Armand", "Armanda")
+Nutrients_C<-cbind(N.Armand, N.Armanda[,-1 ])
+colnames(Nutrients_C) <-c("Beaker", "Armand", "Armanda")
 
-kable(as.data.frame(Cases, format = "markdown"), 
+kable(as.data.frame(Nutrients_C, format = "markdown"), 
       longtable = TRUE)
 ```
 
+# Nutrients
 ```{r}
-
-Current_data<- ggplot(Current) + 
+Minutes_nutrients<- ggplot(Nutrients, aes(beaker, duration, fill=Arm)) + 
   
   theme_bw() +
-  # scale_x_continuous(limits = c(0, 24),
-  #                     expand = c(0.01, 0.01),
-  #                     breaks = seq(0, 24, 2),
-  #                     name="Time of the day")+
-  geom_point(aes(Date_Time, duration, fill=Arm), shape=21, size=0.6)+
-  facet_wrap(~beaker)
-Current_data
 
-```
-
-```{r, echo=FALSE}
-
-mean.beaker <- ddply (Current, .(beaker, Arm, Date), summarise,
-                D_mean = mean (duration, na.rm = T),
-                D_sd = sd (duration, na.rm = T),
-                number = n())
-mean.beaker
-
-mean.beaker <- ddply (Current, .(beaker, Arm),summarise,
-                D_mean = mean (duration, na.rm = T),
-                D_sd = sd (duration, na.rm = T),
-                number = n())
-mean.beaker
-
-mean.round <- ddply (mean.beaker, .(Arm),summarise,
-                R_mean = mean (D_mean, na.rm = T),
-                R_sd = sd (D_mean, na.rm = T),
-                number = n())
-
-mean.round$round.min<-as.character(round((mean.round$R_mean*mean.round$number)/60, 2))
-mean.round
-mean.round$round.min
-```
-
-```{r}
-Minutes_round<- ggplot(Current, aes(beaker, duration, fill=Arm)) + 
-  
-  theme_bw() +
-  # scale_x_continuous(limits = c(0, 24),
+  scale_y_continuous(limits = c(20, 85),
+                      expand = c(0.01, 0.01),
+                      breaks = seq(0, 100, 10),
+                      name="Seconds per beaker")+
+   # scale_x_continuous(limits = c(0, 24),
   #                     expand = c(0.01, 0.01),
   #                     breaks = seq(0, 24, 2),
   #                     name="Time of the day")+
@@ -193,6 +148,189 @@ Minutes_round<- ggplot(Current, aes(beaker, duration, fill=Arm)) +
   #  annotate(geom="text", x = 36, y = 1, parse=TRUE,
   #              label =paste0("Armanda (min) ",mean.round$round.min[2], size=4))
 
-Minutes_round
-Minutes_round + facet_wrap(~Date)
+#Minutes_nutrients + facet_wrap(~Date)
+Minutes_nutrients
+
+Minutes_nutrientsb<- ggplot(Nutrients, aes(Arm, duration, fill=Arm)) + 
+  theme_bw() +
+  scale_y_continuous(limits = c(20, 85),
+                      expand = c(0.01, 0.01),
+                      breaks = seq(0, 100, 10),
+                      name="Mean beaker duration (s)")+
+  
+  stat_summary(fun.data = "mean_cl_boot", aes(fill=Arm), shape=21)
+  # annotate(geom="text", x = 1, y = 28, parse=TRUE,
+  #               label = as.character(mean.round$round.min[1]), size=4)+
+  # annotate(geom="text", x = 2, y = 28, parse=TRUE,
+  #            label = as.character(mean.round$round.min[2]), size=4)
+#Minutes_nutrients + facet_wrap(~Date)
+Minutes_nutrientsb
 ```
+
+
+```{r, echo=FALSE}
+mean.beaker <- ddply (Nutrients, .(beaker, Arm, Date), summarise,
+                D_mean = mean (duration, na.rm = T),
+                D_sd = sd (duration, na.rm = T),
+                number = n())
+mean.beaker
+
+mean.Arm <- ddply (Nutrients, .(beaker, Arm),summarise,
+                D_mean = mean (duration, na.rm = T),
+                D_sd = sd (duration, na.rm = T),
+                number = n())
+mean.Arm
+
+mean.day <- ddply (Nutrients, .(Date, Arm),summarise,
+                D_mean = mean (duration, na.rm = T),
+                D_sd = sd (duration, na.rm = T),
+                number = n())
+mean.day
+
+mean.round <- ddply (mean.Arm, .(Arm),summarise,
+                R_mean = mean (D_mean, na.rm = T),
+                #R_sd = sd (D_mean, na.rm = T),
+                number = n())
+
+mean.round$round.min<-(round((mean.round$R_mean*mean.round$number)/60, 2))
+mean.round$DoseDay<-(24*60)/mean.round$round.min
+mean.round$Vol.SW.day.mL<-mean.round$DoseDay*60
+mean.round$Changes.SW.day.mL<-mean.round$Vol.SW.day.mL/600
+mean.round$umol.NH.day.mL<-mean.round$DoseDay*0.3
+mean.round$uM.NH.day.mL<-mean.round$DoseDay*0.5
+
+mean.round
+#mean.round$round.min<-as.character(mean.round$round.min)
+#mean.round$round.min
+```
+
+# Disease1
+
+```{r}
+Minutes_disease1<- ggplot(Disease1, aes(beaker, duration, fill=Arm)) + 
+  theme_bw() +
+  scale_y_continuous(limits = c(20, 100),
+                      expand = c(0.01, 0.01),
+                      breaks = seq(0, 100, 10),
+                      name="Seconds per beaker")+
+  #  # scale_x_continuous(limits = c(0, 24),
+  #                     expand = c(0.01, 0.01),
+  #                     breaks = seq(0, 24, 2),
+  #                     name="Time of the day")+
+  geom_jitter(aes(colour=Arm), size=1, alpha=0.5)+
+  stat_summary(fun.data = "mean_cl_boot", aes(fill=Arm), shape=21)
+  # annotate(geom="text", x = 12, y = 1, parse=TRUE,
+  #              label =paste0("Armand (min) ",mean.round$round.min[1], size=4))+
+  #  annotate(geom="text", x = 36, y = 1, parse=TRUE,
+  #              label =paste0("Armanda (min) ",mean.round$round.min[2], size=4))
+
+#Minutes_round
+Minutes_disease1 + facet_wrap(~Date)
+```
+
+# Disease2
+
+```{r}
+Minutes_disease2<- ggplot(Disease2, aes(beaker, duration/8, fill=Arm)) + 
+  
+  theme_bw() +
+
+  scale_y_continuous(limits = c(50, 76),
+                      expand = c(0.01, 0.01),
+                      breaks = seq(0, 100, 5),
+                      name="Seconds per beaker")+
+  # #  # scale_x_continuous(limits = c(0, 24),
+  #                     expand = c(0.01, 0.01),
+  #                     breaks = seq(0, 24, 2),
+  #                     name="Time of the day")+
+  geom_jitter(aes(colour=Arm), size=1, alpha=0.5)+
+  stat_summary(fun.data = "mean_cl_boot", aes(fill=Arm), shape=21)
+  # annotate(geom="text", x = 12, y = 1, parse=TRUE,
+  #              label =paste0("Armand (min) ",mean.round$round.min[1], size=4))+
+  #  annotate(geom="text", x = 36, y = 1, parse=TRUE,
+  #              label =paste0("Armanda (min) ",mean.round$round.min[2], size=4))
+
+#Minutes_round
+#Minutes_disease2 + facet_wrap(~Date)
+Minutes_disease2
+
+```
+
+
+```{r, echo=FALSE}
+mean.beaker2 <- ddply (Disease2, .(beaker, Arm, Date), summarise,
+                D_mean = (mean (duration, na.rm = T))/8,
+                D_sd = sd (duration, na.rm = T),
+                number = n()*8)
+mean.beaker2
+
+mean.Arm2 <- ddply (Disease2, .(beaker, Arm),summarise,
+                D_mean = (mean (duration, na.rm = T))/8,
+                D_sd = sd (duration, na.rm = T),
+                number = n()*8)
+mean.Arm2
+
+mean.day2 <- ddply (Disease2, .(Date, Arm),summarise,
+                D_mean = (mean (duration, na.rm = T))/8,
+                D_sd = sd (duration, na.rm = T),
+                number = n()*8)
+mean.day2
+
+mean.round2 <- ddply (mean.Arm2, .(Arm),summarise,
+                R_mean = mean (D_mean, na.rm = T),
+                #R_sd = sd (D_mean, na.rm = T),
+                number = n()*8)
+
+
+mean.round2$round.min<-(round((mean.round2$R_mean*mean.round2$number)/60, 2))
+mean.round2$DoseDay<-(24*60)/mean.round2$round.min
+mean.round2$Vol.SW.day.mL<-mean.round2$DoseDay*60
+mean.round2$Changes.SW.day.mL<-mean.round2$Vol.SW.day.mL/600
+mean.round2$umol.NH.day.mL<-mean.round2$DoseDay*0.45
+mean.round2$uM.NH.day.mL<-mean.round2$DoseDay*0.75
+
+mean.round2
+
+mean.round2$round.min<-as.character(mean.round2$round.min)
+mean.round2$round.min
+
+```
+
+```{r}
+Minutes_disease2b<- ggplot(Disease2, aes(Arm, duration/8, fill=Arm)) + 
+  theme_bw() +
+  scale_y_continuous(limits = c(50, 76),
+                      expand = c(0.01, 0.01),
+                      breaks = seq(0, 80, 5),
+                     name="Mean beaker duration (s)")+
+
+  stat_summary(fun.data = "mean_cl_boot", aes(fill=Arm), shape=21)
+  # annotate(geom="text", x = 1, y = 55, parse=TRUE,
+  #               label = as.character(mean.round2$round.min[1]), size=4)+
+  # annotate(geom="text", x = 2, y = 55, parse=TRUE,
+  #            label = as.character(mean.round2$round.min[2]), size=4)
+
+#Minutes_nutrients + facet_wrap(~Date)
+Minutes_disease2b
+```
+
+
+```{r}
+Duration<-ggarrange(Minutes_nutrients+
+                      theme(legend.position = "none"), Minutes_nutrientsb,
+                    Minutes_disease2+
+                      theme(legend.position = "none"), Minutes_disease2b,
+                    labels=c("Nutrients and Temperature ~ 2 weeks", "", 
+                             "Nutrients, Temperature and Disease ~ 1 week"), 
+                    ncol = 2, nrow = 2, widths = c(2.8,1.2))
+Duration
+```
+
+```{r}
+Stats.table<-rbind(mean.round, mean.round2)
+Stats.table
+kable(as.data.frame(Stats.table, format = "markdown"), 
+      longtable = TRUE, digits = 2)
+write.csv(Stats.table, "Dosing regime", row.names = F)
+```
+
