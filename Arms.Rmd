@@ -252,7 +252,7 @@ Minutes_disease2<- ggplot(Disease2, aes(beaker, duration/8, fill=Arm)) +
 
 #Minutes_round
 #Minutes_disease2 + facet_wrap(~Date)
-Minutes_disease2
+Minutes_disease2 
 
 ```
 
@@ -328,7 +328,7 @@ Duration
 
 ```{r}
 Stats.table<-rbind(mean.round, mean.round2)
-Stats.table
+#Stats.table
 kable(as.data.frame(Stats.table, format = "markdown"), 
       longtable = TRUE, digits = 2)
 write.csv(Stats.table, "Dosing regime", row.names = F)
