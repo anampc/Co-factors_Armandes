@@ -316,13 +316,13 @@ Minutes_disease2b
 
 
 ```{r}
-Duration<-ggarrange(Minutes_nutrients+
-                      theme(legend.position = "none"), Minutes_nutrientsb,
-                    Minutes_disease2+
-                      theme(legend.position = "none"), Minutes_disease2b,
-                    labels=c("Nutrients and Temperature ~ 2 weeks", "", 
-                             "Nutrients, Temperature and Disease ~ 1 week"), 
-                    ncol = 2, nrow = 2, widths = c(2.8,1.2))
+Duration<-ggarrange(#Minutes_nutrients+
+                     # theme(legend.position = "none"), Minutes_nutrientsb,
+                     Minutes_disease2+
+                       theme(legend.position = "none"), Minutes_disease2b,
+                    # labels=c("Nutrients and Temperature ~ 2 weeks", "", 
+                    #          "Nutrients, Temperature and Disease ~ 1 week"), 
+                    ncol = 2, widths = c(2.9,1.1))
 Duration
 ```
 
