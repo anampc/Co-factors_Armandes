@@ -42,8 +42,21 @@ editor_options:
     library(lmerTest)
     library(emmeans)
 
-# Interactive Maps
-    library(leaflet)
+
+# Plots
+MyTheme<-theme_bw() +  
+theme(legend.position="top",
+          plot.background=element_blank(),
+          #axis.text.x = element_text(angle = 90, vjust = 0.5),
+          panel.grid.major.y = element_blank(),
+          panel.grid.major.x = element_blank(),
+          panel.grid.minor.x = element_blank(),
+          panel.grid.minor.y = element_blank(),
+          legend.box.background = element_rect(),
+          legend.title = element_blank(),
+          panel.background =element_rect(fill = NA, 
+                                         color = "black"))
+  #guides(fill=guide_legend(nrow=2,byrow=TRUE), shape=guide_legend(nrow=3,byrow=TRUE))
 ```
 
 # Import and format data
@@ -137,8 +150,9 @@ kable(as.data.frame(Doses, format = "markdown"),
 ```{r}
 Minutes_nutrients<- ggplot(Nutrients, aes(beaker, duration, fill=Arm)) + 
   
-  theme_bw() +
-
+  MyTheme +
+  scale_fill_brewer(palette = "Dark2")+
+  scale_colour_brewer(palette = "Dark2")+
   scale_y_continuous(limits = c(20, 85),
                       expand = c(0.01, 0.01),
                       breaks = seq(0, 100, 10),
@@ -158,7 +172,9 @@ Minutes_nutrients + facet_wrap(~Date)
 #Minutes_nutrients
 
 Minutes_nutrientsb<- ggplot(Nutrients, aes(Arm, duration, fill=Arm)) + 
-  theme_bw() +
+  MyTheme +
+  scale_fill_brewer(palette = "Dark2")+
+  
   scale_y_continuous(limits = c(20, 85),
                       expand = c(0.01, 0.01),
                       breaks = seq(0, 100, 10),
@@ -214,7 +230,9 @@ mean.round
 
 ```{r}
 Minutes_disease1<- ggplot(Disease1, aes(beaker, duration, fill=Arm)) + 
-  theme_bw() +
+  MyTheme +
+  scale_fill_brewer(palette = "Dark2")+
+  scale_colour_brewer(palette = "Dark2")+
   scale_y_continuous(limits = c(20, 100),
                       expand = c(0.01, 0.01),
                       breaks = seq(0, 100, 10),
@@ -239,7 +257,9 @@ Minutes_disease1 + facet_wrap(~Date)
 ```{r}
 Minutes_disease2<- ggplot(Disease2, aes(beaker, duration/8, fill=Arm)) + 
   
-  theme_bw() +
+  MyTheme +
+  scale_fill_brewer(palette = "Dark2")+
+  scale_colour_brewer(palette = "Dark2")+
 
   scale_y_continuous(limits = c(50, 76),
                       expand = c(0.01, 0.01),
@@ -304,7 +324,9 @@ mean.round2$round.min
 
 ```{r}
 Minutes_disease2b<- ggplot(Disease2, aes(Arm, duration/8, fill=Arm)) + 
-  theme_bw() +
+  MyTheme +
+  scale_fill_brewer(palette = "Dark2")+
+  
   scale_y_continuous(limits = c(50, 76),
                       expand = c(0.01, 0.01),
                       breaks = seq(0, 80, 5),
