@@ -251,8 +251,8 @@ Minutes_disease2<- ggplot(Disease2, aes(beaker, duration/8, fill=Arm)) +
   #              label =paste0("Armanda (min) ",mean.round$round.min[2], size=4))
 
 #Minutes_round
-#Minutes_disease2 + facet_wrap(~Date)
-Minutes_disease2 
+Minutes_disease2 + facet_wrap(~Date)
+#Minutes_disease2 
 
 ```
 
@@ -310,19 +310,19 @@ Minutes_disease2b<- ggplot(Disease2, aes(Arm, duration/8, fill=Arm)) +
   # annotate(geom="text", x = 2, y = 55, parse=TRUE,
   #            label = as.character(mean.round2$round.min[2]), size=4)
 
-#Minutes_nutrients + facet_wrap(~Date)
+#Minutes_disease2b + facet_wrap(~Date)
 Minutes_disease2b
 ```
 
 
 ```{r}
-Duration<-ggarrange(#Minutes_nutrients+
-                     # theme(legend.position = "none"), Minutes_nutrientsb,
+Duration<-ggarrange(Minutes_nutrients+
+                      theme(legend.position = "none"), Minutes_nutrientsb,
                      Minutes_disease2+
                        theme(legend.position = "none"), Minutes_disease2b,
-                    # labels=c("Nutrients and Temperature ~ 2 weeks", "", 
-                    #          "Nutrients, Temperature and Disease ~ 1 week"), 
-                    ncol = 2, widths = c(2.9,1.1))
+                     labels=c("Nutrients and Temperature ~ 2 weeks", "", 
+                              "Nutrients, Temperature and Disease ~ 1 week"), 
+                    ncol = 2, nrow=2, widths = c(2.9,1.1))
 Duration
 ```
 
