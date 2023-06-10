@@ -119,11 +119,17 @@ N.Armand<-Nutrients[Nutrients$Arm=="Armand", ] %>% count(beaker,
 
 N.Armanda<-Nutrients[Nutrients$Arm=="Armanda", ] %>% count(beaker,
                                   sort = F)
+D.Armand<-Disease2[Disease2$Arm=="Armand", ] %>% count(beaker, 
+                                  sort = F)
 
-Nutrients_C<-cbind(N.Armand, N.Armanda[,-1 ])
-colnames(Nutrients_C) <-c("Beaker", "Armand", "Armanda")
+D.Armanda<-Disease2[Disease2$Arm=="Armanda", ] %>% count(beaker,
+                                  sort = F)
 
-kable(as.data.frame(Nutrients_C, format = "markdown"), 
+Doses<-cbind(N.Armand, N.Armanda[,-1 ], D.Armand[,-1], D.Armanda[,-1 ])
+colnames(Doses) <-c("Beaker", "Armand_Nut", "Armanda_Nut", 
+                          "Armand_Dis", "Armanda_Dis")
+
+kable(as.data.frame(Doses, format = "markdown"), 
       longtable = TRUE)
 ```
 
@@ -148,8 +154,8 @@ Minutes_nutrients<- ggplot(Nutrients, aes(beaker, duration, fill=Arm)) +
   #  annotate(geom="text", x = 36, y = 1, parse=TRUE,
   #              label =paste0("Armanda (min) ",mean.round$round.min[2], size=4))
 
-#Minutes_nutrients + facet_wrap(~Date)
-Minutes_nutrients
+Minutes_nutrients + facet_wrap(~Date)
+#Minutes_nutrients
 
 Minutes_nutrientsb<- ggplot(Nutrients, aes(Arm, duration, fill=Arm)) + 
   theme_bw() +
@@ -311,7 +317,7 @@ Minutes_disease2b<- ggplot(Disease2, aes(Arm, duration/8, fill=Arm)) +
   #            label = as.character(mean.round2$round.min[2]), size=4)
 
 #Minutes_disease2b + facet_wrap(~Date)
-Minutes_disease2b
+#Minutes_disease2b
 ```
 
 
