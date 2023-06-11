@@ -161,7 +161,7 @@ Minutes_nutrients<- ggplot(Nutrients, aes(beaker, duration, fill=Arm)) +
   #                     expand = c(0.01, 0.01),
   #                     breaks = seq(0, 24, 2),
   #                     name="Time of the day")+
-  geom_jitter(aes(colour=Arm), size=1, alpha=0.5)+
+  geom_jitter(aes(colour=Arm), size=1, alpha=0.3)+
   stat_summary(fun.data = "mean_cl_boot", aes(fill=Arm), shape=21)
   # annotate(geom="text", x = 12, y = 1, parse=TRUE,
   #              label =paste0("Armand (min) ",mean.round$round.min[1], size=4))+
@@ -186,7 +186,7 @@ Minutes_nutrientsb<- ggplot(Nutrients, aes(Arm, duration, fill=Arm)) +
   # annotate(geom="text", x = 2, y = 28, parse=TRUE,
   #            label = as.character(mean.round$round.min[2]), size=4)
 #Minutes_nutrients + facet_wrap(~Date)
-Minutes_nutrientsb
+#Minutes_nutrientsb
 ```
 
 
@@ -269,7 +269,7 @@ Minutes_disease2<- ggplot(Disease2, aes(beaker, duration/8, fill=Arm)) +
   #                     expand = c(0.01, 0.01),
   #                     breaks = seq(0, 24, 2),
   #                     name="Time of the day")+
-  geom_jitter(aes(colour=Arm), size=1, alpha=0.5)+
+  geom_jitter(aes(colour=Arm), size=1, alpha=0.3)+
   stat_summary(fun.data = "mean_cl_boot", aes(fill=Arm), shape=21)
   # annotate(geom="text", x = 12, y = 1, parse=TRUE,
   #              label =paste0("Armand (min) ",mean.round$round.min[1], size=4))+
@@ -345,13 +345,17 @@ Minutes_disease2b<- ggplot(Disease2, aes(Arm, duration/8, fill=Arm)) +
 
 ```{r}
 Duration<-ggarrange(Minutes_nutrients+
-                      theme(legend.position = "none"), Minutes_nutrientsb,
-                     Minutes_disease2+
-                       theme(legend.position = "none"), Minutes_disease2b,
+                      theme(legend.position = "none"), 
+                    Minutes_nutrientsb +  theme(legend.position = "none"),
+                    Minutes_disease2 +
+                       theme(legend.position = "none"), 
+                    Minutes_disease2b+ theme(legend.position = "none"),
                      labels=c("Nutrients and Temperature ~ 2 weeks", "", 
                               "Nutrients, Temperature and Disease ~ 1 week"), 
-                    ncol = 2, nrow=2, widths = c(2.9,1.1))
+                    ncol = 2, nrow=2, widths = c(3,0.9))
 Duration
+
+#ggsave(file="Outputs/Arm_stats.svg", plot=Duration, width=8, height=6)
 ```
 
 ```{r}
@@ -359,6 +363,6 @@ Stats.table<-rbind(mean.round, mean.round2)
 #Stats.table
 kable(as.data.frame(Stats.table, format = "markdown"), 
       longtable = TRUE, digits = 2)
-write.csv(Stats.table, "Dosing regime", row.names = F)
+#write.csv(Stats.table, "Outputs/Dosing regime.csv", row.names = F)
 ```
 
